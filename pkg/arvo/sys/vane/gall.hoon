@@ -1472,8 +1472,9 @@
 ::
 ++  call
   ~%  %gall-call  +>   ~
-  |=  [=duct hic=(hypo (hobo task:able))]
+  |=  [=duct dud=(unit goof) hic=(hypo (hobo task:able))]
   ^-  [(list move) _gall-payload]
+  ?<  ?=(^ dud)
   ::
   ~|  [%gall-call-failed duct q.hic]
   =/  =task:able  ((harden task:able) q.hic)
@@ -1963,8 +1964,9 @@
 ::
 ++  take
   ~/  %gall-take
-  |=  [=wire =duct hin=(hypo sign-arvo)]
+  |=  [=wire =duct dud=(unit goof) hin=(hypo sign-arvo)]
   ^-  [(list move) _gall-payload]
+  ?<  ?=(^ dud)
   ::
   ~|  [%gall-take-failed wire]
   ::
