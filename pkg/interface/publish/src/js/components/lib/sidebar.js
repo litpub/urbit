@@ -165,10 +165,10 @@ export class Sidebar extends Component {
               className="pl4 pv6 f9 bg-white bg-black-d white-d bn w-100 inter"
               value={this.state.sort}
               onChange={this.sortChange}>
-              <option value="oldest">Oldest Notebooks First</option>
-              <option value="newest">Newest Notebooks First</option>
-              <option value="alphabetical">Alphabetical A -> Z</option>
-              <option value="reverseAlphabetical">Alphabetical Z -> A</option>
+              <option value="oldest">Oldest</option>
+              <option value="newest">Newest</option>
+              <option value="alphabetical">A -> Z</option>
+              <option value="reverseAlphabetical">Z -> A</option>
             </select>
           </div>
         </div>
