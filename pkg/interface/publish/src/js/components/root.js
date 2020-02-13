@@ -21,6 +21,8 @@ export class Root extends Component {
   render() {
     const { props, state } = this;
 
+    let contacts = !!state.contacts ? state.contacts : {};
+
     return (
       <BrowserRouter>
         <Route exact path="/~publish"
@@ -32,7 +34,8 @@ export class Root extends Component {
               rightPanelHide={true}
               sidebarShown={true}
               invites={state.invites}
-              notebooks={state.notebooks}>
+              notebooks={state.notebooks}
+              contacts={contacts}>
                 <div className={`h-100 w-100 overflow-x-hidden flex flex-column
                  bg-white bg-gray0-d dn db-ns`}>
                   <div className="pl3 pr3 pt2 dt pb3 w-100 h-100">
@@ -52,9 +55,10 @@ export class Root extends Component {
             popout={false}
             active={"rightPanel"}
             rightPanelHide={false}
-            sidebarShown={true}
+            sidebarShown={state.sidebarShown}
             invites={state.invites}
-            notebooks={state.notebooks}>
+            notebooks={state.notebooks}
+            contacts={contacts}>
               <NewScreen
                 notebooks={state.notebooks}
                 groups={state.groups}
@@ -71,38 +75,49 @@ export class Root extends Component {
                   popout={false}
                   active={"rightPanel"}
                   rightPanelHide={false}
-                  sidebarShown={true}
+                  sidebarShown={state.sidebarShown}
                   invites={state.invites}
-                  notebooks={state.notebooks}>
+                  notebooks={state.notebooks}
+                  contacts={contacts}>
                     <JoinScreen notebooks={state.notebooks} {...props} />
                   </Skeleton>
                 )
               }}/>
-      <Route exact path="/~publish/(popout)?/notebook/:ship/:notebook/:view?"
+      <Route exact path="/~publish/:popout?/notebook/:ship/:notebook/:view?"
         render={ (props) => {
           let view = (props.match.params.view)
           ? props.match.params.view
           : "posts";
+
+          let popout = !!props.match.params.popout || false;
 
           let ship = props.match.params.ship || "";
           let notebook = props.match.params.notebook || "";
 
           let path = `${ship}/${notebook}`;
 
+          let bookGroupPath =
+          state.notebooks[ship][notebook]["subscribers-group-path"];
+          let notebookContacts = (bookGroupPath in contacts)
+            ? contacts[bookGroupPath] : {};
+
           if (view === "new") {
             return (
               <Skeleton
-                popout={false}
+                popout={popout}
                 active={"rightPanel"}
                 rightPanelHide={false}
-                sidebarShown={true}
+                sidebarShown={state.sidebarShown}
                 invites={state.invites}
                 notebooks={state.notebooks}
+                contacts={contacts}
                 path={path}>
                 <NewPost
                   notebooks={state.notebooks}
                   ship={ship}
                   book={notebook}
+                  sidebarShown={state.sidebarShown}
+                  popout={popout}
                   {...props}
                 />
               </Skeleton>
@@ -111,12 +126,13 @@ export class Root extends Component {
           else {
             return (
               <Skeleton
-                popout={false}
+                popout={popout}
                 active={"rightPanel"}
                 rightPanelHide={false}
-                sidebarShown={true}
+                sidebarShown={state.sidebarShown}
                 invites={state.invites}
                 notebooks={state.notebooks}
+                contacts={contacts}
                 path={path}>
                 <Notebook
                   notebooks={state.notebooks}
@@ -124,33 +140,48 @@ export class Root extends Component {
                   ship={ship}
                   book={notebook}
                   groups={state.groups}
+                  contacts={notebookContacts}
+                  sidebarShown={state.sidebarShown}
+                  popout={popout}
                   {...props}
                 />
               </Skeleton>
             );
           }
         }}/>
-      <Route exact path="/~publish/(popout)?/note/:ship/:notebook/:note"
+      <Route exact path="/~publish/:popout?/note/:ship/:notebook/:note"
         render={ (props) => {
           let ship = props.match.params.ship || "";
           let notebook = props.match.params.notebook || "";
           let path = `${ship}/${notebook}`
           let note = props.match.params.note || "";
 
+          let popout = !!props.match.params.popout || false;
+
+          let bookGroupPath =
+            state.notebooks[ship][notebook]["subscribers-group-path"];
+          let notebookContacts = (bookGroupPath in state.contacts)
+            ? contacts[bookGroupPath] : {};
+
           return (
             <Skeleton
-              popout={false}
+              popout={popout}
               active={"rightPanel"}
               rightPanelHide={false}
-              sidebarShown={true}
+              sidebarShown={state.sidebarShown}
               invites={state.invites}
               notebooks={state.notebooks}
+              contacts={contacts}
               path={path}>
               <Note
                 notebooks={state.notebooks}
                 book={notebook}
+                contacts={notebookContacts}
                 ship={ship}
                 note={note}
+                sidebarShown={state.sidebarShown}
+                popout={popout}
+                {...props}
               />
             </Skeleton>
           );

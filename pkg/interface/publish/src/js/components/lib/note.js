@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { Route, Link } from 'react-router-dom';
+import { SidebarSwitcher } from './icons/icon-sidebar-switch';
 import { Comments } from './comments';
 import { NoteNavigation } from './note-navigation';
 import moment from 'moment';
@@ -89,20 +91,30 @@ export class Note extends Component {
   }
 
   render() {
-    let notebook = this.props.notebooks[this.props.ship][this.props.book];
-    let comments = notebook.notes[this.props.note].comments;
-    let title = notebook.notes[this.props.note].title;
-    let author = notebook.notes[this.props.note].author;
-    let file = notebook.notes[this.props.note].file;
-    let date = moment(notebook.notes[this.props.note]["date-created"]).fromNow();
+    const { props } = this;
+    let notebook = props.notebooks[props.ship][props.book];
+    let comments = notebook.notes[props.note].comments;
+    let title = notebook.notes[props.note].title;
+    let author = notebook.notes[props.note].author;
+    let file = notebook.notes[props.note].file;
+    let date = moment(notebook.notes[props.note]["date-created"]).fromNow();
+
+    let contact = !!(author.substr(1) in props.contacts)
+      ? props.contacts[author.substr(1)] : false;
+
+    let name = author;
+    if (contact) {
+      name = (contact.nickname.length > 0)
+        ? contact.nickname : author;
+    }
 
     if (!file) {
       return null;
     }
 
     let newfile = file.slice(file.indexOf(';>')+2);
-    let prevId = notebook.notes[this.props.note]["prev-note"];
-    let nextId = notebook.notes[this.props.note]["next-note"];
+    let prevId = notebook.notes[props.note]["prev-note"];
+    let nextId = notebook.notes[props.note]["next-note"];
 
     let prev = (prevId === null)
       ?  null
@@ -119,17 +131,51 @@ export class Note extends Component {
           date: moment(notebook.notes[nextId]["date-created"]).fromNow()
         }
 
+    let popout = (props.popout) ? "popout/" : "";
 
+    let hrefIndex = props.location.pathname.indexOf("/note/");
+    let publishsubStr = props.location.pathname.substr(hrefIndex);
+    let popoutHref = `/~publish/popout${publishsubStr}`;
+
+    let hiddenOnPopout = props.popout ? "" : "dib-m dib-l dib-xl";
+
+    let baseUrl = `/~publish/${popout}notebook/${props.ship}/${props.book}`;
     return (
-      <div className="h-100 overflow-container no-scrollbar"
-           onScroll={this.onScroll}
-           ref={(el) => {this.scrollElement = el}}>
-        <div className="flex justify-center mt4 ph4 pb4">
-          <div className="w-100 mw6">
+      <div
+        className="h-100 no-scrollbar"
+        onScroll={this.onScroll}
+        ref={el => {
+          this.scrollElement = el;
+        }}>
+        <div className="h-100 flex flex-column items-center mt4 ph4 pb4">
+          <div className="w-100 flex justify-center pb6">
+            <SidebarSwitcher
+              popout={props.popout}
+              sidebarShown={props.sidebarShown}
+            />
+            <Link className="f9 w-100 mw6 tl" to={baseUrl}>
+              {"<- Notebook index"}
+            </Link>
+            <Link
+            to={popoutHref}
+            className={"dn absolute right-1 top-1 " + hiddenOnPopout}
+            target="_blank">
+              <img src="/~publish/popout.png"
+                height={16}
+                width={16}
+              />
+            </Link>
+          </div>
+          <div className="w-100 mw6 overflow-container">
             <div className="flex flex-column">
               <div className="f9 mb1">{title}</div>
               <div className="flex mb6">
-                <div className="di f9 mono gray2 mr2">{author}</div>
+                <div
+                  className={
+                    "di f9 gray2 mr2 " + (name === author ? "mono" : "")
+                  }>
+                  {name}
+                </div>
                 <div className="di f9 gray2">{date}</div>
               </div>
             </div>
@@ -137,18 +183,23 @@ export class Note extends Component {
               <ReactMarkdown source={newfile} />
             </div>
             <NoteNavigation
+              popout={props.popout}
               prev={prev}
               next={next}
-              ship={this.props.ship}
-              book={this.props.book}/>
-            <Comments ship={this.props.ship}
-              book={this.props.book}
-              note={this.props.note}
-              comments={comments}/>
+              ship={props.ship}
+              book={props.book}
+            />
+            <Comments
+              ship={props.ship}
+              book={props.book}
+              note={props.note}
+              comments={comments}
+              contacts={props.contacts}
+            />
           </div>
         </div>
       </div>
-    )
+    );
   }
 }
 
